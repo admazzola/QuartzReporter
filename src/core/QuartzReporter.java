@@ -19,6 +19,9 @@ public class QuartzReporter {
 
 	final static String DEFAULT_DIRECTORY = "\\\\macnet-ad\\ns-mi-usr\\mi-usr\\mazzolaa\\Quarterly Reviews";
 	
+	
+	
+	
 	public static void main(String[] args) {
 		
 		/*if(args.length == 0)
@@ -27,23 +30,25 @@ public class QuartzReporter {
 			return;
 		}*/
 		
-		String inputFilePath = getPathFromFileChooser();
 		
 		
+		
+		Report myReport = new TechConnectYearComparisonReport();
+				
 		try {
-			init(inputFilePath);
+			myReport.init();
 		} catch (Exception e) {
-			
 			e.printStackTrace();
 		}
-
+		
 		
 
 	}
 
-	private static String getPathFromFileChooser() {
+	static String getPathFromFileChooser(String title) {
 		
 		JFileChooser chooser = new JFileChooser(DEFAULT_DIRECTORY);
+		chooser.setDialogTitle(title);
 	    FileNameExtensionFilter filter = new FileNameExtensionFilter(
 	        "Excel Files", "xls");
 	    chooser.setFileFilter(filter);
@@ -58,56 +63,36 @@ public class QuartzReporter {
 		
 		return chooser.getSelectedFile().getAbsolutePath();
 	}
-
-	private static void init(String inputFilePath) throws Exception{
-
-		FileInputStream file = new FileInputStream(new File( inputFilePath ));
-		
-				//Get the workbook instance for XLS file 
-		HSSFWorkbook inputbook = new HSSFWorkbook(file);
-		
-		
-		
-		
-		HSSFWorkbook outputbook = new HSSFWorkbook();//need to save this eventually..
-				
-		HSSFSheet quartzSheet = outputbook.createSheet("QuartzReport");
-		 
-
-
-		
-		
-		//Get first sheet from the workbook
-		HSSFSheet salessheet = inputbook.getSheet("Sales Detail");
-		
-		
-		//Get iterator to all the rows in current sheet
-		Row titles = salessheet.getRow(0);		
-		salessheet.removeRow(titles);
-		
-		int ProdCatColumn = getColumnContainingString(titles, "ProdCategory");
-		
-		for (Iterator<Row> rowIterator = salessheet.iterator(); rowIterator.hasNext(); ) {
-			Row myrow = rowIterator.next();
-		    // 1 - can call methods of element
-		    // 2 - can use iter.remove() to remove the current element from the list
-
-		    // ...
-			
-					
-			Cell prodCategoryCell = myrow.getCell( ProdCatColumn );
-			System.out.println( prodCategoryCell.getStringCellValue()  );
-			
-		}
-		
 	
+	static String getOutputPathToNewFile(String title) {
 		
-	//	System.out.println("val" +   cell.getStringCellValue() );
+		JFileChooser chooser = new JFileChooser(DEFAULT_DIRECTORY);
+		chooser.setDialogTitle(title);
+	    
+	    JPanel mainPanel = new JPanel();
+	    
+	    int returnVal = chooser.showSaveDialog(mainPanel);
+	    	    
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	       System.out.println("File saved at: " +
+	            chooser.getSelectedFile().getName());
+	    }
 		
-		
+	    String path = chooser.getSelectedFile().getAbsolutePath();
+	    
+	    if( !path.endsWith(".xls") )
+	    {
+	    	
+	    	path = path + ".xls";
+	    }
+	    
+	    
+		return path;
 	}
 
-	private static int getColumnContainingString(Row titles, String string) {
+
+
+	static int getColumnContainingString(Row titles, String string) {
 
 		for (Iterator<Cell> cellIterator = titles.iterator(); cellIterator.hasNext(); ) {
 			Cell title = cellIterator.next();
